@@ -1,20 +1,16 @@
 const path = require('path');
-const gm = require('gm').subClass({ imageMagick: true });
+const fs = require('fs');
+const youtubedl = require('youtube-dl');
 
-async function robot(text) {
-    await insertText();
+async function robot(videos) {
+    await downloadVideos();
 
-    function insertText() {
+    async function downloadVideos() {
         const inputPath = path.join(path.dirname(__filename), '../output/resized.png');
         const outputPath = path.join(path.dirname(__filename), '../output/resized.png');
-        //const text = 'Huehue';
 
-        const gravity = 'NorthWest'
-        const font = 'Arial';
-        const fontSize = 50;
-        const fontColor = '#FFFFFF';
-        const x = 10;
-        const y = 10;
+        for(let video in videos) {
+        }
 
         return new Promise((resolve, reject) => {
             gm()
@@ -29,6 +25,10 @@ async function robot(text) {
                     resolve();
                 });
         });
+    }
+
+    async download(video) {
+
     }
 }
 
