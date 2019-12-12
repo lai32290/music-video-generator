@@ -1,5 +1,5 @@
-const image = require('./robos/image.js');
-const text = require('./robos/text.js');
+const image = require('./robots/image.js');
+const text = require('./robots/text.js');
 
 async function start() {
     try {
