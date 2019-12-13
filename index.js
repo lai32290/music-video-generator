@@ -5,8 +5,8 @@ const youtube = require('./robots/youtube.js');
 
 const videos = [
     {
-        name: '來自天堂的魔鬼',
-        url: 'https://www.youtube.com/watch?v=FWtbGkpdoP4&list=PLChSKu6fwZb0RFqjOewHoqmoZ-pBNlQ23'
+        name: 'Ed Sheeran - Shape of You',
+        url: 'https://www.youtube.com/watch?v=JGwWNGJdvx8&list=PLaq655wqcKDkGZfYcXh2RGLj9jToo50Ev'
     }
 ];
 
