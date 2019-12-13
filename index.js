@@ -17,7 +17,7 @@ const videos = [
 async function start() {
     try {
         await setup();
-        //await youtube(videos);
+        await youtube(videos);
         await image();
         await text();
     } catch(e) {
