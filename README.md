@@ -1,2 +1,3 @@
 ## Required
 * ImageMagick
+* Ffmpeg

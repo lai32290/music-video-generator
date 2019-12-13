@@ -13,9 +13,9 @@ const videos = [
 async function start() {
     try {
         await setup();
-        await youtube(videos);
+        //await youtube(videos);
         await image();
-        await text('bababa');
+        await text();
     } catch(e) {
         console.log(e);
     }
