@@ -12,6 +12,7 @@
   "dependencies": {
     "fluent-ffmpeg": "^2.1.2",
     "gm": "^1.23.1",
+    "moment": "^2.24.0",
     "youtube-dl": "^2.2.0"
   }
 }

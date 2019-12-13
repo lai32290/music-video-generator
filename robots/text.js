@@ -1,4 +1,5 @@
 const path = require('path');
+const moment = require('moment');
 const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
 const gm = require('gm').subClass({ imageMagick: true });
@@ -6,26 +7,29 @@ const gm = require('gm').subClass({ imageMagick: true });
 const videosDirectory = path.join(path.dirname(__filename), '../output/videos');
 
 async function robot() {
-    const videosDuration = await getVideosDuration();
-    console.log(videosDuration);
-    //await insertText();
+    const durations = await getVideosDuration();
+    const formatedText = await formatText(durations);
+    await insertText(formatedText);
+    //
 
     async function getVideosDuration() {
-        const videos = await getVideosPath();
         let durations = [];
+        const videos = await getVideosPath();
 
         for (let video of videos) {
             const videoPath = path.join(videosDirectory, video);
             const duration = await getVideoDuration(videoPath);
 
-            durations.push(duration);
+            durations.push({
+                path: videoPath,
+                duration
+            });
         }
         return durations;
     }
 
     async function getVideoDuration(videoPath) {
         return new Promise((resolve, reject) => {
-            console.log(videoPath)
             ffmpeg(videoPath)
                 .ffprobe((err, data) => {
                     if (err) reject(err);
@@ -34,6 +38,19 @@ async function robot() {
                 });
         });
     }
+
+    async function formatText(durations) {
+        let startTime = 0;
+        const formated = durations.map((video, i) => {
+            const index = i + 1;
+            const videoName = video.path.split('/').reverse()[ 0 ].replace(/\.(mp4)$/i, '');
+            const startingAt = moment('2019-01-01 00:00:00').add(startTime, 'seconds').format('HH:mm:ss');
+            startTime += video.duration;
+            return `[${index}] ${startingAt} - ${videoName}`;
+        });
+        return formated.join('\n');
+    }
+
 
     async function getVideosPath() {
         return new Promise((resolve, reject) => {
@@ -45,13 +62,13 @@ async function robot() {
         });
     }
 
-    function insertText() {
-        const inputPath = path.join(path.dirname(__filename), '../output/resized.png');
-        const outputPath = path.join(path.dirname(__filename), '../output/resized.png');
+    function insertText(text) {
+        const inputPath = path.join(path.dirname(__filename), '../output/images/resized.png');
+        const outputPath = path.join(path.dirname(__filename), '../output/images/resized.png');
 
         const gravity = 'NorthWest'
         const font = 'Arial';
-        const fontSize = 50;
+        const fontSize = 30;
         const fontColor = '#FFFFFF';
         const x = 10;
         const y = 10;
