@@ -6,29 +6,45 @@ async function robot(videos) {
     await downloadVideos();
 
     async function downloadVideos() {
-        const inputPath = path.join(path.dirname(__filename), '../output/resized.png');
-        const outputPath = path.join(path.dirname(__filename), '../output/resized.png');
-
-        for(let video in videos) {
+        for(let video of videos) {
+            await download(video);
         }
-
-        return new Promise((resolve, reject) => {
-            gm()
-                .in(inputPath)
-                .font(font, fontSize)
-                .fill(fontColor)
-                .drawText(x, y, text, gravity)
-                .write(outputPath, err => {
-                    if (err) reject(err);
-
-                    console.log("Text added.");
-                    resolve();
-                });
-        });
     }
 
-    async download(video) {
+    async function download({ name, url }) {
+        const outputPath = path.join(path.dirname(__filename), `../output/videos/${name}.mp4`);
 
+        return new Promise((resolve, reject) => {
+            let pos = 0;
+            let size = 0;
+            const video = youtubedl(url);
+            video.pipe(fs.createWriteStream(outputPath));
+
+            video.on('info', info => {
+                size = info.size;
+            });
+
+            video.on('data', chunk => {
+                pos += chunk.length;
+                if (size) {
+                    let percent = (pos / size * 100).toFixed(2);
+                    process.stdout.cursorTo(0);
+                    process.stdout.clearLine(1);
+                    process.stdout.write(`Downloading ${name} - ${percent}%`);
+                }
+            })
+
+            video.on('error', err => {
+                console.log('Error on downloading video...', err);
+                reject(err);
+            });
+
+            video.on('end', () => {
+                console.log('\r');
+                console.log(`Video ${name} downloaded.`);
+                resolve();
+            });
+        });
     }
 }
 

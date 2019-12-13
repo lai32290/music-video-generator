@@ -6,7 +6,7 @@ async function robot() {
 
     function resizeImage() {
         const inputPath = path.join(path.dirname(__filename), '../images/background.png');
-        const outputPath = path.join(path.dirname(__filename), '../output/resized.png');
+        const outputPath = path.join(path.dirname(__filename), '../output/images/resized.png');
         const width = 1280;
         const height = 720;
 

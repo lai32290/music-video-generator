@@ -5,8 +5,10 @@ async function robot() {
     await createFilesAndPaths();
 
     function createFilesAndPaths() {
-        const directory = path.join(path.dirname(__filename), '../output');
-        fs.mkdirSync(directory, { recursive: true });
+        const images = path.join(path.dirname(__filename), '../output/images');
+        const videos = path.join(path.dirname(__filename), '../output/videos');
+        fs.mkdirSync(images, { recursive: true });
+        fs.mkdirSync(videos, { recursive: true });
     }
 }
 
