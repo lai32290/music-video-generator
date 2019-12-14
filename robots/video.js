@@ -2,29 +2,41 @@ const path = require('path');
 const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
 
-const videosDirectory = path.join(path.dirname(__filename), '../output/videos');
-const mergedVideo = path.join(videosDirectory, 'mergedVideo.mp4');
-const image = path.join(path.dirname(__filename), '../output/images/resied.png');
+const videosDir = path.join(path.dirname(__filename), '../output/videos');
+const merged = path.join(videosDir, 'merged.mp4');
+const videoImage = path.join(path.dirname(__filename), '../output/temp/videoImage.mp4');
+const audio = path.join(path.dirname(__filename), '../output/temp/audio.mp3');
+const image = path.join(path.dirname(__filename), '../output/images/resized.png');
 
 async function robot(videos) {
-    await concatVideos();
-    await removeVideo();
+    await createVideoFromImage();
+    await mergeVideos();
+    await mergeVideoAndAudio();
 
-    async function concatVideos() {
+    async function createVideoFromImage() {
+        return new Promise((resolve, reject) => {
+            ffmpeg(image)
+                .loop(3)
+                .fps(1)
+                .on('error', err => reject(err.message))
+                .on('end', resolve)
+                .save(videoImage);
+        });
+    }
+
+    async function mergeVideos() {
         return new Promise(async (resolve, reject) => {
-            const mergedFile = mergedVideo;
-            const tempDir = path.join(videosDirectory, 'temp');
+            const tempDir = path.join(videosDir, '../temp');
 
-            let command = ffmpeg();
+            const files = videos.map(v => `file '${path.join(videosDir, `${v.name}.mp4`)}'`).join('\n');
+            const fileList = path.join(tempDir, 'files.txt');
+            fs.writeFileSync(fileList, files);
 
-            videos.forEach(({name}) => {
-                const file = path.join(videosDirectory, `${name}.mp4`);
-                command.input(file);
-            });
-
-            command
+            let command = ffmpeg(fileList)
+                .inputOptions(['-f concat', '-safe 0'])
+                .outputOptions('-c copy')
                 .on('start', () => {
-                    process.stdout.write('Video concatenating');
+                    process.stdout.write('Video merging');
                 })
                 .on('progress', () => {
                     process.stdout.write('.');
@@ -34,36 +46,49 @@ async function robot(videos) {
                     resolve();
                 })
                 .on('error', err => reject(err.message))
-                .mergeToFile(mergedFile, tempDir);
+                .save(path.join(videosDir, 'merged.mp4'));
         });
     }
 
-    async function removeVideo() {
-        return new Promise((resolve, reject) => {
-            ffmpeg(mergedVideo)
-                .input(image)
-                .videoCodec('libx264')
-                .on('codecData', () => {
-                    console.log('hihihi')
+    async function mergeVideos2() {
+        return new Promise(async (resolve, reject) => {
+            const tempDir = path.join(videosDir, 'temp');
+
+            let command = ffmpeg();
+            videos.forEach(({name}) => {
+                const file = path.join(videosDir, `${name}.mp4`);
+                command.input(file);
+            });
+            command
+                .videoCodec('copy')
+                .output('/tmp/huelll.mp4')
+                .on('start', () => {
+                    process.stdout.write('Video merging');
                 })
                 .on('progress', () => {
-                    console.log('hu')
+                    process.stdout.write('.');
                 })
-                .complexFilter([
-                    {
-                        filter: 'overlay',
-                        options: {
-                            enable: 'between(t,2,4)',
-                            x: '810',
-                            y: '465'
-                        },
-                        inputs: '[0:v][1:v]',
-                        outputs: 'tmp'
-                    }
-                ], mergedVideo)
+                .on('end', () => {
+                    process.stdout.write('\r');
+                    resolve();
+                })
+                .on('error', err => reject(err.message))
                 .run();
         });
     }
+
+    async function mergeVideoAndAudio() {
+        return new Promise((resolve, reject) => {
+            console.log('t2')
+            ffmpeg(videoImage)
+                .addInput(merged)
+                .audioCodec('copy')
+                .on('error', err => reject(err.message))
+                .on('end', resolve)
+                .save(path.join(videosDir, 'final_result.mp4'));
+        });
+    }
+
 }
 
 module.exports = robot;
