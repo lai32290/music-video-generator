@@ -3,8 +3,10 @@ const moment = require('moment');
 const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
 const gm = require('gm').subClass({ imageMagick: true });
-
-const videosDirectory = path.join(path.dirname(__filename), '../output/videos');
+const {
+	videosDir,
+	image
+} = require('../variables');
 
 async function robot() {
     const durations = await getVideosDuration();
@@ -17,7 +19,7 @@ async function robot() {
         const videos = await getVideosPath();
 
         for (let video of videos) {
-            const videoPath = path.join(videosDirectory, video);
+            const videoPath = path.join(videosDir, video);
             const duration = await getVideoDuration(videoPath);
 
             durations.push({
@@ -54,7 +56,7 @@ async function robot() {
 
     async function getVideosPath() {
         return new Promise((resolve, reject) => {
-            fs.readdir(videosDirectory, (err, files) => {
+            fs.readdir(videosDir, (err, files) => {
                 if (err) reject(err);
 
                 resolve(files);
@@ -63,8 +65,8 @@ async function robot() {
     }
 
     function insertText(text) {
-        const inputPath = path.join(path.dirname(__filename), '../output/images/resized.png');
-        const outputPath = path.join(path.dirname(__filename), '../output/images/resized.png');
+        const inputPath = image;
+        const outputPath = image;
 
         const gravity = 'NorthWest'
         const font = 'Arial';

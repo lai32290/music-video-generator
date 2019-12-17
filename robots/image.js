@@ -1,12 +1,16 @@
 const path = require('path');
 const gm = require('gm').subClass({ imageMagick: true });
+const {
+	background,
+	image
+} = require('../variables');
 
 async function robot() {
     await resizeImage();
 
     function resizeImage() {
-        const inputPath = path.join(path.dirname(__filename), '../images/background.png');
-        const outputPath = path.join(path.dirname(__filename), '../output/images/resized.png');
+        const inputPath = background;
+        const outputPath = image;
         const width = 1280;
         const height = 720;
 
