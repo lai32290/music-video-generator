@@ -2,11 +2,16 @@ const path = require('path');
 const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
 
-const videosDir = path.join(path.dirname(__filename), '../output/videos');
+const {
+    videosDir,
+    tempDir,
+    imagesDir
+} = require('../variables');
+
 const merged = path.join(videosDir, 'merged.mp4');
-const videoImage = path.join(path.dirname(__filename), '../output/temp/videoImage.mp4');
-const audio = path.join(path.dirname(__filename), '../output/temp/audio.mp3');
-const image = path.join(path.dirname(__filename), '../output/images/resized.png');
+const videoImage = path.join(tempDir, 'videoImage.mp4');
+const audio = path.join(tempDir, 'audio.mp3');
+const image = path.join(imagesDir, 'resized.png');
 
 async function robot(videos) {
     await createVideoFromImage();
