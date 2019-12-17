@@ -20,7 +20,7 @@ async function start() {
         await setup();
         await youtube(videos);
         await image();
-        await text();
+        await text(videos);
         await video(videos);
     } catch(e) {
         console.log(e);

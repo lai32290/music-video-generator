@@ -8,7 +8,7 @@ const {
 	image
 } = require('../variables');
 
-async function robot() {
+async function robot(videos) {
     const durations = await getVideosDuration();
     const formatedText = await formatText(durations);
     await insertText(formatedText);
@@ -16,14 +16,12 @@ async function robot() {
 
     async function getVideosDuration() {
         let durations = [];
-        const videos = await getVideosPath();
-
         for (let video of videos) {
-            const videoPath = path.join(videosDir, video);
+            const videoPath = path.join(videosDir, `${video.name}.mp4`);
             const duration = await getVideoDuration(videoPath);
 
             durations.push({
-                path: videoPath,
+				name: video.name,
                 duration
             });
         }
@@ -45,7 +43,7 @@ async function robot() {
         let startTime = 0;
         const formated = durations.map((video, i) => {
             const index = i + 1;
-            const videoName = video.path.split('/').reverse()[ 0 ].replace(/\.(mp4)$/i, '');
+            const videoName = video.name;
             const startingAt = moment('2019-01-01 00:00:00').add(startTime, 'seconds').format('HH:mm:ss');
             startTime += video.duration;
             return `[${index}] ${startingAt} - ${videoName}`;
