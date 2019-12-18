@@ -10,8 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.17.1",
     "fluent-ffmpeg": "^2.1.2",
     "gm": "^1.23.1",
+    "googleapis": "^46.0.0",
     "moment": "^2.24.0",
     "youtube-dl": "^2.2.0"
   }
