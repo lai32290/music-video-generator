@@ -1,10 +1,13 @@
+const fs = require('fs');
 const express = require('express');
 const google = require('googleapis').google;
+const youtube = google.youtube({ version: 'v3' });
+const { finalResultVideo } = require('../variables.js');
 const OAuth2 = google.auth.OAuth2;
 
 async function robot() {
     await authenticateOAuth();
-    // await updateVideo();
+    await updateVideo();
     // await updateDescription();
 
     async function authenticateOAuth() {
@@ -56,7 +59,7 @@ async function robot() {
                 console.log('Waiting for user consent...');
                 webServer.app.get('/oauth-callback', (req, res) => {
                     const authToken = req.query.code;
-                    console.log(`Consent given: ${authCode}`);
+                    console.log(`Consent given: ${authToken}`);
                     res.send('<h1>Thank you!</h1>Now you can close this page.');
                     resolve(authToken);
                 });
@@ -88,6 +91,43 @@ async function robot() {
             });
         }
     }
+
+	async function updateVideo() {
+		const videoFilePath = finalResultVideo;
+		const videoFileSize = fs.statSync(videoFilePath).size;
+		const videoTitle = 'Generated - Test';
+		const videoDescription = '';
+
+		const requestParams = {
+			part: 'snippet, status',
+			requestBody: {
+				snippet: {
+					title: videoTitle,
+					description: videoDescription
+				},
+				status: {
+					privacyStatus: 'unlisted'
+				}
+			},
+			media: {
+				body: fs.createReadStream(videoFilePath)
+			}
+		};
+
+		const youtubeResponse = await youtube.videos.insert(requestParams, {
+			onUploadProgress
+		});
+
+		console.log(`Video uploaded on URL: https://youtu.be/${youtubeResponse.data.id}`);
+
+		return youtubeResponse.data;
+
+		function onUploadProgress(event) {
+			const progress = Math.round(event.bytesRead / videoFileSize * 100);
+
+			console.log(`${progress}% uploaded`);
+		}
+	}
 }
 
 module.exports = robot;

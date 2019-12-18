@@ -8,11 +8,11 @@ const { videos } = require('./config.js');
 
 async function start() {
     try {
-        //await setup();
-        //await youtube(videos);
-        //await image();
-        //await text(videos);
-        //await video(videos);
+        await setup();
+        //await download(videos);
+        await image();
+        await text(videos);
+        await video(videos);
 		await youtube();
     } catch(e) {
         console.log(e);
