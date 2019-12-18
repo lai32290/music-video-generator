@@ -1,6 +1,7 @@
+const setup = require('./robots/setup.js');
+const download = require('./robots/download.js');
 const image = require('./robots/image.js');
 const text = require('./robots/text.js');
-const setup = require('./robots/setup.js');
 const youtube = require('./robots/youtube.js');
 
 const videos = [
@@ -16,10 +17,11 @@ const videos = [
 
 async function start() {
     try {
-        await setup();
-        await youtube(videos);
-        await image();
-        await text();
+		//await setup();
+        //await download(videos);
+        //await image();
+        //await text();
+		await youtube();
     } catch(e) {
         console.log(e);
     }

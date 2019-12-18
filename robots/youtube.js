@@ -1,50 +1,92 @@
-const path = require('path');
-const fs = require('fs');
-const youtubedl = require('youtube-dl');
+const express = require('express');
+const google = require('googleapis').google;
+const OAuth2 = google.auth.OAuth2;
 
-async function robot(videos) {
-    await downloadVideos();
+async function robot() {
+    await authenticateOAuth();
+    // await updateVideo();
+    // await updateDescription();
 
-    async function downloadVideos() {
-        for(let video of videos) {
-            await download(video);
+    async function authenticateOAuth() {
+        const webServer = await startWebServer();
+        const OAuthClient = await createOAuthClient();
+        requestUserConsent(OAuthClient);
+        const authToken = await waitForGoogleCallback(webServer);
+        await requestAccessTokens(OAuthClient, authToken);
+        setGlobalGoogleAuthentication(OAuthClient);
+        await stopWebServer(webServer);
+
+        async function startWebServer() {
+            const port = 5000;
+            return new Promise((resolve, reject) => {
+                const app = express();
+                const server = app.listen(port, () => {
+                    console.log('Server is on port 5000');
+                    resolve({
+                        app,
+                        server
+                    });
+                });
+            });
         }
-    }
 
-    async function download({ name, url }) {
-        const outputPath = path.join(path.dirname(__filename), `../output/videos/${name}.mp4`);
+        async function createOAuthClient() {
+            const credentials = require('../credentials/video-generator-oauth.json');
 
-        return new Promise((resolve, reject) => {
-            let pos = 0;
-            let size = 0;
-            const video = youtubedl(url);
-            video.pipe(fs.createWriteStream(outputPath));
+            const OAuthClient = new OAuth2(
+                credentials.web.client_id,
+                credentials.web.client_secret,
+                credentials.web.redirect_uris[0]
+            );
 
-            video.on('info', info => {
-                size = info.size;
+            return OAuthClient;
+        }
+
+        function requestUserConsent(OAuthClient) {
+            const consentUrl = OAuthClient.generateAuthUrl({
+                access_type: 'offline',
+                scope: ['https://www.googleapis.com/auth/youtube']
             });
 
-            video.on('data', chunk => {
-                pos += chunk.length;
-                if (size) {
-                    let percent = (pos / size * 100).toFixed(2);
-                    process.stdout.cursorTo(0);
-                    process.stdout.clearLine(1);
-                    process.stdout.write(`Downloading ${name} - ${percent}%`);
-                }
-            })
+            console.log(`Please give your consent: ${consentUrl}`);
+        }
 
-            video.on('error', err => {
-                console.log('Error on downloading video...', err);
-                reject(err);
+        async function waitForGoogleCallback(webServer) {
+            return new Promise((resolve, reject) => {
+                console.log('Waiting for user consent...');
+                webServer.app.get('/oauth-callback', (req, res) => {
+                    const authToken = req.query.code;
+                    console.log(`Consent given: ${authCode}`);
+                    res.send('<h1>Thank you!</h1>Now you can close this page.');
+                    resolve(authToken);
+                });
             });
+        }
 
-            video.on('end', () => {
-                console.log('\r');
-                console.log(`Video ${name} downloaded.`);
-                resolve();
+        async function requestAccessTokens(OAuthClient, authToken) {
+            return new Promise((resolve, reject) => {
+                OAuthClient.getToken(authToken, (error, tokens) => {
+                    if(error) reject(error);
+
+                    console.log('Access token received.');
+
+                    OAuthClient.setCredentials(tokens);
+                    resolve();
+                });
             });
-        });
+        }
+
+        function setGlobalGoogleAuthentication(OAuthClient) {
+            google.options({
+                auth: OAuthClient
+            });
+        }
+
+        async function stopWebServer(webServer) {
+            return new Promise(resolve => {
+                webServer.server.close(resolve);
+            });
+        }
     }
 }
 
