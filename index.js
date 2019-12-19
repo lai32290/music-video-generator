@@ -13,7 +13,7 @@ async function start() {
         await image();
         await text(videos);
         await video(videos);
-		await youtube();
+        await youtube();
     } catch(e) {
         console.log(e);
     }
