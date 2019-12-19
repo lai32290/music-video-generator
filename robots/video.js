@@ -26,9 +26,11 @@ async function robot(videos) {
             ffmpeg(image)
                 .videoCodec('libx264')
                 .outputOptions([
-                    '-pix_fmt', 'yuv420p'
+                    '-pix_fmt', 'yuv420p',
+                    '-shortest'
                 ])
                 .loop(3)
+                .fps(250)
                 .on('error', err => reject(err.message))
                 .on('end', resolve)
                 .save(videoImage);
