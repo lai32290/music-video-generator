@@ -24,13 +24,11 @@ async function robot(videos) {
     async function createVideoFromImage() {
         return new Promise((resolve, reject) => {
             ffmpeg(image)
-                .videoCodec('libx264')
                 .outputOptions([
                     '-pix_fmt', 'yuv420p',
-                    '-shortest'
                 ])
                 .loop(3)
-                .fps(250)
+                .fps(25)
                 .on('error', err => reject(err.message))
                 .on('end', resolve)
                 .save(videoImage);
@@ -66,8 +64,33 @@ async function robot(videos) {
 
     async function mergeVideoAndAudio() {
         return new Promise((resolve, reject) => {
-            ffmpeg(mergedVideo)
+            ffmpeg()
+                .addInput(mergedVideo)
+                .loop(1)
                 .addInput(videoImage)
+                .videoCodec('copy')
+                .audioCodec('copy')
+                .outputOptions([
+                    '-pix_fmt', 'yuv420p',
+                    '-shortest'
+                ])
+                .on('error', err => reject(err.message))
+                .on('end', resolve)
+                .save(finalResultVideo);
+        });
+    }
+
+    async function mergeVideoAndAudio2() {
+        return new Promise((resolve, reject) => {
+            ffmpeg(image)
+                .addInput(mergedVideo)
+                .outputOptions([
+                    '-pix_fmt', 'yuv420p',
+                ])
+                .filterComplex([
+                    '[1:v][0:v]overlay'
+                ])
+                .videoCodec('libx264')
                 .audioCodec('copy')
                 .on('error', err => reject(err.message))
                 .on('end', resolve)
