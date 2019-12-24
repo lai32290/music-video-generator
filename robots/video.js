@@ -66,32 +66,11 @@ async function robot(videos) {
         return new Promise((resolve, reject) => {
             ffmpeg(image)
                 .addInput(mergedVideo)
-                .complexFilter([
-                    '[0:v]scale=-1:-1',
-                    '[1:v][0:v]overlay'
-                ])
-                .outputOptions([
-                    '-pix_fmt yuv420p',
-                    '-shortest'
-                ])
-                .on('error', err => reject(err.message))
-                .on('end', resolve)
-                .save(finalResultVideo);
-        });
-    }
-
-    async function mergeVideoAndAudio2() {
-        return new Promise((resolve, reject) => {
-            ffmpeg(image)
-                .addInput(mergedVideo)
-                .outputOptions([
-                    '-pix_fmt', 'yuv420p',
-                ])
-                .filterComplex([
-                    '[1:v][0:v]overlay'
-                ])
                 .videoCodec('libx264')
-                .audioCodec('copy')
+                .complexFilter([
+                    'scale2ref[0][1]',
+                    '[1][0]overlay'
+                ])
                 .on('error', err => reject(err.message))
                 .on('end', resolve)
                 .save(finalResultVideo);
