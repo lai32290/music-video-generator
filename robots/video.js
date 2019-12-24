@@ -64,14 +64,14 @@ async function robot(videos) {
 
     async function mergeVideoAndAudio() {
         return new Promise((resolve, reject) => {
-            ffmpeg()
+            ffmpeg(image)
                 .addInput(mergedVideo)
-                .loop(1)
-                .addInput(videoImage)
-                .videoCodec('copy')
-                .audioCodec('copy')
+                .complexFilter([
+                    '[0:v]scale=-1:-1',
+                    '[1:v][0:v]overlay'
+                ])
                 .outputOptions([
-                    '-pix_fmt', 'yuv420p',
+                    '-pix_fmt yuv420p',
                     '-shortest'
                 ])
                 .on('error', err => reject(err.message))

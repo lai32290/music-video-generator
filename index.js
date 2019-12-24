@@ -12,8 +12,8 @@ async function start() {
 		//await download(videos);
         await image();
         await text(videos);
-        await video(videos);
-		//await youtube();
+		await video(videos);
+		await youtube();
     } catch(e) {
         console.log(e);
     }
