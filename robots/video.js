@@ -15,7 +15,7 @@ const {
     finalResultVideo
 } = require('../variables');
 
-async function robot(videos) {
+async function robot({ videos }) {
     await createVideoFromImage();
     await generateMergeFileList();
     await mergeVideos();

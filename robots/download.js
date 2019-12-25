@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const youtubedl = require('youtube-dl');
 
-async function robot(videos) {
+async function robot({ videos }) {
     await downloadVideos();
 
     async function downloadVideos() {

@@ -8,11 +8,11 @@ const {
 	image
 } = require('../variables');
 
-async function robot(videos) {
-    const durations = await getVideosDuration();
-    const formatedText = await formatText(durations);
+async function robot(context) {
+    const { videos } = context;
+    await getVideosDuration();
+    const formatedText = await formatText();
     await insertText(formatedText);
-    //
 
     async function getVideosDuration() {
         let durations = [];
@@ -25,7 +25,7 @@ async function robot(videos) {
                 duration
             });
         }
-        return durations;
+        context.videosDuration = durations;
     }
 
     async function getVideoDuration(videoPath) {
@@ -39,7 +39,8 @@ async function robot(videos) {
         });
     }
 
-    async function formatText(durations) {
+    async function formatText() {
+        const durations = context.videosDuration;
         let startTime = 0;
         const formated = durations.map((video, i) => {
             const index = i + 1;

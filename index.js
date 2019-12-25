@@ -6,14 +6,16 @@ const youtube = require('./robots/youtube.js');
 const video = require('./robots/video.js');
 const { videos } = require('./config.js');
 
+const context = { videos };
+
 async function start() {
     try {
 		await setup();
-		//await download(videos);
-        await image();
-        await text(videos);
-		await video(videos);
-		await youtube();
+		//await download(context);
+		await image();
+		await text(context);
+		await video(context);
+		await youtube(context);
     } catch(e) {
         console.log(e);
     }

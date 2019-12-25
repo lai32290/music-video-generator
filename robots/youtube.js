@@ -5,10 +5,11 @@ const youtube = google.youtube({ version: 'v3' });
 const { finalResultVideo } = require('../variables.js');
 const OAuth2 = google.auth.OAuth2;
 
-async function robot() {
+async function robot(context) {
+    const { videos, videosDuration } = context;
     await authenticateOAuth();
     await updateVideo();
-    // await updateDescription();
+    await updateDescription();
 
     async function authenticateOAuth() {
         const webServer = await startWebServer();
@@ -118,7 +119,9 @@ async function robot() {
 			onUploadProgress
 		});
 
-		console.log(`Video uploaded on URL: https://youtu.be/${youtubeResponse.data.id}`);
+        context.videoUrl = `https://youtu.be/${youtubeResponse.data.id}`;
+        context.videoId = youtubeResponse.data.id;
+		console.log(`Video uploaded on URL: ${context.videoUrl}`);
 
 		return youtubeResponse.data;
 
@@ -128,6 +131,31 @@ async function robot() {
 			console.log(`${progress}% uploaded`);
 		}
 	}
+
+    async function updateDescription() {
+        const { videoUrl, videoId } = context;
+        let startTime = 0;
+		const videoTitle = 'Generated - Test';
+        const videoDescription = context.videosDuration.map(duration => {
+            const link = `<a href="${videoUrl}?t=${startTime}">${duration.name}</a>`;
+            startTime += duration.duration;
+            return link;
+        }).join('\n');
+        const requestParams = {
+            part: 'snippet',
+            resource: {
+                id: videoId,
+                snippet: {
+                    categoryId: 22,
+                    title: videoTitle,
+                    description: videoDescription
+                }
+            }
+        };
+
+        const youtubeResponse = await youtube.videos.update(requestParams);
+        console.log('Video description updated');
+    }
 }
 
 module.exports = robot;
