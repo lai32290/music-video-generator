@@ -137,7 +137,7 @@ async function robot(context) {
         let startTime = 0;
 		const videoTitle = 'Generated - Test';
         const videoDescription = context.videosDuration.map(duration => {
-            const link = `<a href="${videoUrl}?t=${startTime}">${duration.name}</a>`;
+            const link = `${duration.name} - ${videoUrl}?t=${parseInt(startTime)}`;
             startTime += duration.duration;
             return link;
         }).join('\n');
